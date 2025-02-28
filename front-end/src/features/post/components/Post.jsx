@@ -3,7 +3,7 @@ import { memo, useState } from "react";
 import { MdArrowRight } from "react-icons/md";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
-import { FilePreview } from "@/components"
+import { FilePreview } from "@/components";
 import EventApi from "../services/EventApi";
 import PostApi from "../services/PostApi";
 import PostContext from "../store/PostContext";
@@ -34,7 +34,9 @@ function PostHeader({ post }) {
                 {post.user.firstName + " " + post.user.lastName}
               </Link>
               <div>&#x2022;</div>
-              <div className="text-sm">{formatDate(post.createdAt, 'fromNow')}</div>
+              <div className="text-sm">
+                {formatDate(post.createdAt, "fromNow")}
+              </div>
             </div>
             <div className="text-sm">Web Developer at Webestica</div>
           </div>
@@ -48,10 +50,7 @@ function PostHeader({ post }) {
               className="w-10 h-10 rounded-full object-cover"
             />
             <div>
-              <Link
-                to={`/groups/${post.group._id}`}
-                className="font-semibold"
-              >
+              <Link to={`/groups/${post.group._id}`} className="font-semibold">
                 {post.group.name}
               </Link>
               <div className="text-sm">Public group</div>
@@ -71,7 +70,10 @@ function PostEmbed({ id }) {
   if (query.isLoading || query.isError) return <></>;
   const post = query.data;
   return (
-    <Link to={`/posts/${id}`} className="flex flex-col gap-3 border-2 border-gray-600  p-3">
+    <Link
+      to={`/posts/${id}`}
+      className="flex flex-col gap-3 border-2 border-gray-600  p-3"
+    >
       <PostHeader post={post} />
       {post.content && (
         <div className="whitespace-pre-line text-justify">{post.content}</div>
@@ -163,17 +165,24 @@ export const Post = memo(function ({ id, isPopUp = false }) {
       value={{ setCreate: () => setOpen(true), post: post }}
     >
       {!isPopUp && (
-        <Modal open={open} onCancel={() => setOpen(false)} footer={null} centered title={<PostHeader post={post} />}>
+        <Modal
+          open={open}
+          onCancel={() => setOpen(false)}
+          footer={null}
+          centered
+          title={<PostHeader post={post} />}
+        >
           <Post id={id} isPopUp={true} onClose={() => setOpen(false)} />
         </Modal>
       )}
 
       <div className="flex flex-col gap-3">
-
-        {!isPopUp && <div className="flex justify-between items-center z-10">
-          <PostHeader post={post} />
-          <SettingPost post={post} />
-        </div>}
+        {!isPopUp && (
+          <div className="flex justify-between items-center z-10">
+            <PostHeader post={post} />
+            <SettingPost post={post} />
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           <div className=" whitespace-pre-line text-justify">

@@ -32,11 +32,11 @@ export default function () {
     localStorage.setItem("darkmode", darkMode);
   }, [darkMode]);
 
-
-
   return (
     <CommonContext.Provider value={{ darkMode, setDarkMode, headerRef: ref }}>
-      <ConfigProvider theme={{ algorithm: darkMode ? darkAlgorithm : defaultAlgorithm }}>
+      <ConfigProvider
+        theme={{ algorithm: darkMode ? darkAlgorithm : defaultAlgorithm }}
+      >
         <SocketProvider>
           <UserProvider>
             <div className={`bg-background text-onBackground min-h-screen`}>

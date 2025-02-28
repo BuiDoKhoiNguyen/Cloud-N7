@@ -1,7 +1,14 @@
 import { Chip, IconButton } from "@mui/material";
 import { Button, Form, Modal, Input, Upload as AntdUpload } from "antd";
 import { useContext, useRef, useState } from "react";
-import { MdAdd, MdClose, MdForum, MdImage, MdInbox, MdVideoCall, } from "react-icons/md";
+import {
+  MdAdd,
+  MdClose,
+  MdForum,
+  MdImage,
+  MdInbox,
+  MdVideoCall,
+} from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Upload from "../../../components/Upload";
@@ -66,14 +73,22 @@ function VotePost() {
         <Input placeholder="Viết nội dung" />
       </Form.Item>
 
-      <Form.List name="options" noStyle rules={[{ required: true, message: "Vui lòng nhập ít nhất một lựa chọn" }]}>
+      <Form.List
+        name="options"
+        noStyle
+        rules={[
+          { required: true, message: "Vui lòng nhập ít nhất một lựa chọn" },
+        ]}
+      >
         {(fields, { add, remove }, { errors }) => (
           <>
             {fields.map((field) => (
               <div className="flex gap-2" key={field.key}>
                 <Form.Item
                   name={[field.name, "content"]}
-                  rules={[{ required: true, message: "Vui lòng nhập lựa chọn" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập lựa chọn" },
+                  ]}
                   noStyle
                 >
                   <Input placeholder="Nhập lựa chọn" />
@@ -113,21 +128,31 @@ export default function CreatePost() {
       formData.append("type", type);
       groupContext && formData.append("group", groupContext.group._id);
       values.content && formData.append("content", values.content);
-      values.files && values.files.fileList.forEach((file) => formData.append("files", file.originFileObj));
-      values.options && values.options.forEach((e, i) =>
-        formData.append(`options[${i}][content]`, e.content)
-      );
+      values.files &&
+        values.files.fileList.forEach((file) =>
+          formData.append("files", file.originFileObj)
+        );
+      values.options &&
+        values.options.forEach((e, i) =>
+          formData.append(`options[${i}][content]`, e.content)
+        );
       const res = await PostApi.create(formData);
       setType(null);
       if (res.type === "Live") navigate(`/posts/${res._id}`);
     } catch (error) {
       toast(error.message, { type: "error" });
     }
-  }
+  };
 
   return (
     <>
-      <Modal onOk={() => form.submit()} open={!!type} onCancel={() => setType(null)} okText="Đăng" cancelText="Hủy">
+      <Modal
+        onOk={() => form.submit()}
+        open={!!type}
+        onCancel={() => setType(null)}
+        okText="Đăng"
+        cancelText="Hủy"
+      >
         <Form onFinish={onFinish} form={form} className="flex flex-col gap-3">
           <div className="flex gap-2 items-center">
             <img

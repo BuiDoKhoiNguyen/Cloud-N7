@@ -45,8 +45,7 @@ function Overview({ account, user, setUser }) {
       <div className="justify-between flex">
         <div className="font-semibold">Overview</div>
         {isMe && (
-          <Button icon={<MdEdit />} onClick={() => setEdit(true)}>
-          </Button>
+          <Button icon={<MdEdit />} onClick={() => setEdit(true)}></Button>
         )}
       </div>
       {edit ? (
@@ -67,10 +66,7 @@ function Overview({ account, user, setUser }) {
           <Button onClick={handleSave} type="primary">
             Save
           </Button>
-          <Button
-            onClick={() => setEdit(false)}
-            danger
-          >
+          <Button onClick={() => setEdit(false)} danger>
             Cancel
           </Button>
         </div>
@@ -226,6 +222,33 @@ export default function () {
               <div>Joined on Nov 26, 2019</div>
             </div>
           </div>
+          <Divider />
+          <div className="flex gap-1 px-8 py-5 overflow-y-auto">
+            {[
+              "Posts",
+              "About",
+              "Connections",
+              "Media",
+              "Videos",
+              "Events",
+              "Activity",
+            ].map((e) => (
+              <div
+                onClick={() => {
+                  searchParams.set("q", e === "Posts" ? "" : e);
+                  setSearchParams(searchParams);
+                }}
+                className={`font-semibold ${
+                  searchParams.get("q") === e ||
+                  (!searchParams.get("q") && e === "Posts")
+                    ? "text-primary border-primary"
+                    : "hover:text-primary/50 border-transparent"
+                } px-4 pb-1 cursor-pointer border-b-2`}
+              >
+                {e}
+              </div>
+            ))}
+          </div>
         </div>
         <Tabs
           defaultActiveKey={searchParams.get("tab") || "posts"}
@@ -236,26 +259,34 @@ export default function () {
             {
               key: "posts",
               label: "Posts",
-              children: <div className="flex flex-col gap-5">
-                {user?._id == id && <CreatePost />}
-                <Posts query={{ user: id }} />
-              </div>
+              children: (
+                <div className="flex flex-col gap-5">
+                  {user?._id == id && <CreatePost />}
+                  <Posts query={{ user: id }} />
+                </div>
+              ),
             },
             {
               key: "about",
               label: "About",
-              children:
+              children: (
                 <div className="flex flex-col gap-3">
-                  <Card title="Profile Info" >
+                  <Card title="Profile Info">
                     <div className="flex flex-col gap-3">
-                      <Overview account={account} user={user} setUser={setUser} />
+                      <Overview
+                        account={account}
+                        user={user}
+                        setUser={setUser}
+                      />
                       <div className="grid grid-cols-2 gap-5 items-start">
                         {[
                           {
                             field: "birthday",
                             type: "date",
                             title: "Born",
-                            icon: <IoCalendarNumberOutline className="w-6 h-6 my-1" />,
+                            icon: (
+                              <IoCalendarNumberOutline className="w-6 h-6 my-1" />
+                            ),
                           },
                           {
                             field: "status",
@@ -279,7 +310,9 @@ export default function () {
                             field: "address",
                             type: "text",
                             title: "Lives in",
-                            icon: <IoLocationOutline className="w-6 h-6 my-1" />,
+                            icon: (
+                              <IoLocationOutline className="w-6 h-6 my-1" />
+                            ),
                           },
                         ].map((e, i) => (
                           <div key={i}>
@@ -295,17 +328,24 @@ export default function () {
                           <IoCalendarClearOutline className="w-6 h-6 my-1" />
                           <div>Join on:</div>
                           <div className="font-semibold">
-                            {new Date(account.createdAt).toLocaleDateString("vi-VN", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })}
+                            {new Date(account.createdAt).toLocaleDateString(
+                              "vi-VN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </Card>,
-                  <Card title="Interests" extra={<Button type="primary"> See all</Button>}>
+                  </Card>
+                  ,
+                  <Card
+                    title="Interests"
+                    extra={<Button type="primary"> See all</Button>}
+                  >
                     <div className="grid gap-5 grid-cols-3">
                       {new Array(5)
                         .fill({
@@ -315,7 +355,10 @@ export default function () {
                         })
                         .map((e) => (
                           <div className="flex gap-5 items-center">
-                            <img src={e.avatar} className="w-12 h-12 rounded-full" />
+                            <img
+                              src={e.avatar}
+                              className="w-12 h-12 rounded-full"
+                            />
                             <div className="flex flex-col gap-2">
                               <div className="font-semibold">{e.title}</div>
                               <div>{e.followers} followers</div>
@@ -325,11 +368,12 @@ export default function () {
                     </div>
                   </Card>
                 </div>
+              ),
             },
             {
               key: "connections",
               label: "Connections",
-              children:
+              children: (
                 <Card title="Connections">
                   <div className="flex flex-col gap-3">
                     {new Array(5)
@@ -340,10 +384,14 @@ export default function () {
                       })
                       .map((e) => (
                         <div className="flex gap-5 items-end">
-                          <img src={e.avatar} className="w-12 h-12 rounded-full" />
+                          <img
+                            src={e.avatar}
+                            className="w-12 h-12 rounded-full"
+                          />
                           <div className="flex flex-col gap-2">
                             <div>
-                              <div className="font-semibold">{e.name}</div> {e.title}
+                              <div className="font-semibold">{e.name}</div>{" "}
+                              {e.title}
                             </div>
                             <div>250 connections</div>
                           </div>
@@ -355,75 +403,91 @@ export default function () {
                     <Button>Load more connections</Button>
                   </div>
                 </Card>
+              ),
             },
             {
               key: "media",
               label: "Media",
-              children: <Card title="Photos and Videos" extra={<Button type="primary"> See all</Button>}>
-                <div className="grid grid-cols-4 gap-5">
-                  {new Array(8)
-                    .fill({
-                      image: `https://social.webestica.com/assets/images/avatar/01.jpg`,
-                      title: "Photo title",
-                      post: "4398249823",
-                    })
-                    .map((e, i) => (
-                      <div className="flex flex-col gap-2">
-                        <img
-                          src={e.image}
-                          className="h-full object-cover rounded-md"
-                        />
-                        <div className="flex gap-1 items-center">
-                          <IoMdHeart className="w-4 h-4" />
-                          <div className="">22k</div>
-                          <MdOutlineComment className="w-4 h-4 ml-4" />
-                          <div className="">22k</div>
+              children: (
+                <Card
+                  title="Photos and Videos"
+                  extra={<Button type="primary"> See all</Button>}
+                >
+                  <div className="grid grid-cols-4 gap-5">
+                    {new Array(8)
+                      .fill({
+                        image: `https://social.webestica.com/assets/images/avatar/01.jpg`,
+                        title: "Photo title",
+                        post: "4398249823",
+                      })
+                      .map((e, i) => (
+                        <div className="flex flex-col gap-2">
+                          <img
+                            src={e.image}
+                            className="h-full object-cover rounded-md"
+                          />
+                          <div className="flex gap-1 items-center">
+                            <IoMdHeart className="w-4 h-4" />
+                            <div className="">22k</div>
+                            <MdOutlineComment className="w-4 h-4 ml-4" />
+                            <div className="">22k</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                </div>
-              </Card>
+                      ))}
+                  </div>
+                </Card>
+              ),
             },
             {
               key: "videos",
               label: "Videos",
-              children: <Card title="Videos" extra={<Button type="primary"> See all</Button>}>
-                <div className="grid grid-cols-4 gap-5">
-                  {new Array(8)
-                    .fill({
-                      image: `https://social.webestica.com/assets/images/avatar/01.jpg`,
-                      title: "Video title",
-                      post: "4398249823",
-                    })
-                    .map((e, i) => (
-                      <div className="flex flex-col gap-2">
-                        <img
-                          src={e.image}
-                          className="h-full object-cover rounded-md"
-                        />
-                        <div className="flex gap-1 items-center">
-                          <IoMdHeart className="w-4 h-4" />
-                          <div className="">22k</div>
-                          <MdOutlineComment className="w-4 h-4 ml-4" />
-                          <div className="">22k</div>
+              children: (
+                <Card
+                  title="Videos"
+                  extra={<Button type="primary"> See all</Button>}
+                >
+                  <div className="grid grid-cols-4 gap-5">
+                    {new Array(8)
+                      .fill({
+                        image: `https://social.webestica.com/assets/images/avatar/01.jpg`,
+                        title: "Video title",
+                        post: "4398249823",
+                      })
+                      .map((e, i) => (
+                        <div className="flex flex-col gap-2">
+                          <img
+                            src={e.image}
+                            className="h-full object-cover rounded-md"
+                          />
+                          <div className="flex gap-1 items-center">
+                            <IoMdHeart className="w-4 h-4" />
+                            <div className="">22k</div>
+                            <MdOutlineComment className="w-4 h-4 ml-4" />
+                            <div className="">22k</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                </div>
-              </Card>
+                      ))}
+                  </div>
+                </Card>
+              ),
             },
             {
               key: "events",
               label: "Events",
-              children: <EventsWrapper>
-                <Events />
-              </EventsWrapper>,
+              children: (
+                <EventsWrapper>
+                  <Events />
+                </EventsWrapper>
+              ),
             },
             {
               key: "activity",
               label: "Activity",
-              children:
-                <Card title="Activity Feed" extra={<Button type="primary"> See all</Button>}>
+              children: (
+                <Card
+                  title="Activity Feed"
+                  extra={<Button type="primary"> See all</Button>}
+                >
                   <div className="flex flex-col gap-3">
                     {new Array(5)
                       .fill({
@@ -442,7 +506,7 @@ export default function () {
                             <div className="font-semibold">{e.title}</div>
                           </div>
                           <div className="grow"></div>
-                          {formatDate(e.createdAt, 'fromNow')}
+                          {formatDate(e.createdAt, "fromNow")}
                         </div>
                       ))}
                     <Button variant="outlined" color="primary">
@@ -450,7 +514,8 @@ export default function () {
                     </Button>
                   </div>
                 </Card>
-            }
+              ),
+            },
           ]}
         />
       </div>
@@ -458,7 +523,6 @@ export default function () {
       <div className="flex flex-col gap-5 basis-1/3">
         <Card title="About">
           <div className="flex flex-col gap-3">
-
             {account.overview && <div>{account.overview}</div>}
             <div className="flex gap-2 items-center">
               <IoCalendarClearOutline className="w-6 h-6" />
@@ -503,8 +567,9 @@ export default function () {
             ].map((e, i) => (
               <div className="flex gap-5 items-center">
                 <img
-                  src={`https://social.webestica.com/assets/images/avatar/0${i + 1
-                    }.jpg`}
+                  src={`https://social.webestica.com/assets/images/avatar/0${
+                    i + 1
+                  }.jpg`}
                   className="h-16 w-16 rounded-full"
                 />
                 <div className="flex flex-col gap-2">
@@ -522,8 +587,9 @@ export default function () {
           <div className="grid grid-cols-3 gap-2">
             {[1, 2, 3, 4, 6, 32].map((e, i) => (
               <img
-                src={`https://social.webestica.com/assets/images/avatar/0${i + 1
-                  }.jpg`}
+                src={`https://social.webestica.com/assets/images/avatar/0${
+                  i + 1
+                }.jpg`}
                 className="h-full object-cover rounded"
               />
             ))}
@@ -534,22 +600,29 @@ export default function () {
             {new Array(6).fill(0).map((e, i) => (
               <div className="rounded border-2 p-5 flex flex-col gap-1 items-center">
                 <img
-                  src={`https://social.webestica.com/assets/images/avatar/0${i + 1
-                    }.jpg`}
+                  src={`https://social.webestica.com/assets/images/avatar/0${
+                    i + 1
+                  }.jpg`}
                   className="object-cover rounded-full w-2/3"
                 />
                 <div className="font-semibold">John Doe</div>
                 <div className="flex gap-3">
-                  <Button size="small" icon={<MdMessage />} type="primary">
-                  </Button>
-                  <Button size="small" icon={<MdPersonRemove />} danger>
-                  </Button>
+                  <Button
+                    size="small"
+                    icon={<MdMessage />}
+                    type="primary"
+                  ></Button>
+                  <Button
+                    size="small"
+                    icon={<MdPersonRemove />}
+                    danger
+                  ></Button>
                 </div>
               </div>
             ))}
           </div>
         </Card>
       </div>
-    </div >
+    </div>
   );
 }

@@ -3,8 +3,8 @@ import FileService from './file.js'
 import GroupService from '../services/group.js'
 import UserService from '../services/user.js'
 import Redis from '../configs/init.redis.js'
-
-
+import LikePost from '../models/LikePost.js'
+import CommentPost from '../models/CommentPost.js'
 
 class Service {
   get = async (query, page, limit) => {
@@ -15,17 +15,21 @@ class Service {
   }
 
   getById = async id => {
-    const cache = await Redis.client.get('post:' + id)
-    if (cache) return JSON.parse(cache)
+    // const cache = await Redis.client.json.get('post:' + id, "$")
+    // if (cache) return cache
     const val = (await Post.findById(id)).toObject()
     val.user = await UserService.getById(val.user)
-    if(val.group) val.group = await GroupService.getById(val.group)
-    Redis.client.set('post:' + id, JSON.stringify(val))
+    val.like_total = await LikePost.countDocuments({ post: id })
+    val.comment_total = await CommentPost.countDocuments({ post: id })
+    val.share_total = await Post.countDocuments({ "ref.id": id, "ref.type": "Post" })
+    if (val.group) val.group = await GroupService.getById(val.group)
+    await Redis.client.json.set('post:' + id, '$', val)
     return val
   }
 
   create = async (user, data) => {
     if (data.group) return GroupService.haveRole(user, data.group, 'Member').then(() => Post.create(data))
+    if (data.ref?.type === "Post") await Redis.client.json.numIncrBy('post:' + data.ref.id, '$.share_total', 1)
     return Post.create(data)
   }
 

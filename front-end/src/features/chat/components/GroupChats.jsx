@@ -1,8 +1,8 @@
+import { formatDate } from '@/utils'
 import { cloneElement, useEffect, useRef, useState } from 'react'
+import { useQuery } from 'react-query'
 import GroupChatApi from '../services/groupChat'
 import MessageApi from '../services/message'
-import { useQuery } from 'react-query'
-import { getDiff } from '../../../utils/parseDate'
 
 export function GroupChatCard({ groupchat }) {
 
@@ -16,10 +16,10 @@ export function GroupChatCard({ groupchat }) {
   return <div className='flex gap-5 items-center rounded-md px-5 py-2'>
     <img src="https://social.webestica.com/assets/images/avatar/01.jpg" alt="" className="w-12 h-12 rounded-full" />
     <div className="flex flex-col gap-2 grow">
-      <div className='heading'>{groupchat.name}</div>
-      <div className="flex gap-2 justify-between">
-        <div className='max-w-full overflow-hidden text-ellipsis'>{query.data?.content}</div>
-        <div className='shrink-0'>{getDiff(query.data?.createdAt)}</div>
+      <div className='font-semibold'>{groupchat.name}</div>
+      <div className="flex gap-2 justify-between text-sm">
+        <div className='max-w-full overflow-hidden text-ellipsis'>{query.data?.content || "Đã gửi 1 tin nhắn"}</div>
+        <div className='shrink-0'>{formatDate(query.data?.createdAt, "relativeDay")}</div>
       </div>
     </div>
   </div>

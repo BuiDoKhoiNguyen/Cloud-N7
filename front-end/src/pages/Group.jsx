@@ -1,15 +1,16 @@
-import { Button, Divider, IconButton } from "@mui/material"
+import { Button } from "antd"
 import { BsThreeDots } from "react-icons/bs"
 import { IoCalendarNumberOutline, IoLocationOutline, IoPerson } from "react-icons/io5"
 import { useQuery } from "react-query"
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useSearchParams } from "react-router-dom"
 import { FilePreview } from "../components"
 import { GroupApi, GroupContext, Members } from '../features/group'
-import { AttendEvent, CreateEvent, CreatePost, Posts } from '../features/post'
+import { AttendEvent, CreateEvent, CreatePost, EventsWrapper, Posts } from '../features/post'
+import { Tabs } from "antd"
 
 function Events({ group, events, loadMore, hasMore }) {
-  return <div className="flex flex-col gap-5">
-    <div className="rounded-md bg-surface text-onSurface shadow overflow-hidden flex flex-col gap-8 p-5">
+  return <div className="flex flex-col gap-3">
+    <div className="rounded-md bg-surface text-onSurface shadow overflow-hidden flex flex-col gap-3 p-5">
       <div className="justify-between flex">
         <div className="text-xl font-semibold">Discover Events</div>
         <CreateEvent data={{ group: group }} />
@@ -44,9 +45,8 @@ function Events({ group, events, loadMore, hasMore }) {
 }
 
 export default function () {
-  const params = useParams()
-  const id = params.id
-  const sub = params.sub
+  const { id } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const query = useQuery({
     queryKey: ['group', id],
     queryFn: () => GroupApi.getById(id)
@@ -57,14 +57,14 @@ export default function () {
   const group = query.data
 
   return <GroupContext.Provider value={{ group: group }}>
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
 
       <div className="rounded-md bg-surface text-onSurface overflow-hidden">
-        <img src={group.avatar ? group.avatar.url : 'https://social.webestica.com/assets/images/bg/01.jpg'} className="w-full h-40 object-cover"></img>
+        <img src={group.avatar.url} className="w-full h-40 object-cover"></img>
         <div className="p-5 flex flex-col gap-5">
           <div className="flex gap-2 md:items-center justify-between max-md:flex-col">
             <div className="flex gap-2 items-center">
-              <img src={group.avatar ? group.avatar.url : 'https://social.webestica.com/assets/images/avatar/01.jpg'} className="w-20 h-20 rounded-full object-cover"></img>
+              <img src={group.avatar.url} className="w-20 h-20 rounded-full object-cover"></img>
               <div className="ml-5">
                 <div className="text-xl font-semibold">{group.name}</div>
                 <div className="flex gap-2 items-center">
@@ -75,10 +75,10 @@ export default function () {
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <Button variant="outlined" color="primary">Joined</Button>
-              <Button variant="outlined" color="success">Invite</Button>
+              <Button type="primary">Joined</Button>
+              <Button>Invite</Button>
               <div className="grow"></div>
-              <IconButton><BsThreeDots className="w-4 h-4" /></IconButton>
+              <Button><BsThreeDots className="w-4 h-4" /></Button>
             </div>
           </div>
           <div className="flex gap-5 relative items-center">
@@ -90,28 +90,41 @@ export default function () {
             <div className="h-8"><div className="w-8 h-8 absolute rounded-full border-2 border-surface bg-primary text-onPrimary text-[10px] text-center content-center">20+</div></div>
             <div className="ml-5 text-sm">Pmquy, Pmqafs and 20+ joined</div>
           </div>
-          <Divider />
-          <div className="flex gap-1 pb-3 overflow-y-auto">
-            <Link to={`/groups/${id}/posts`} className={`${sub == 'posts' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>Posts</Link>
-            <Link to={`/groups/${id}/about`} className={`${sub == 'about' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>About</Link>
-            <Link to={`/groups/${id}/connections`} className={`${sub == 'connections' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>Connections</Link>
-            <Link to={`/groups/${id}/media`} className={`${sub == 'media' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>Media</Link>
-            <Link to={`/groups/${id}/videos`} className={`${sub == 'files' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>Videos</Link>
-            <Link to={`/groups/${id}/events`} className={`${sub == 'events' ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2 `}>Events</Link>
-          </div>
+
         </div>
       </div>
 
-      <div>
-        {sub === 'posts' && <div className="flex flex-col gap-5">
-          <CreatePost />
-          <Posts query={{ group: id }} />
-        </div>}
+      <Tabs
+        defaultActiveKey={searchParams.get('tab') || 'posts'}
+        onChange={(key) => setSearchParams({ tab: key })}
+        items={[
+          {
+            label: 'Posts',
+            key: 'posts',
+            children:
+              <div className="flex flex-col gap-5">
+                <CreatePost />
+                <Posts query={{ group: id }} />
+              </div>
+          },
+          {
+            label: 'About', key: 'about'
 
-        {sub === 'connections' && <Members id={id} />}
-
-        {sub === "events" && <EventWrapper query={{ group: id }}><Events group={id} /></EventWrapper>}
-      </div>
+          },
+          {
+            label: 'Connections',
+            key: 'connections',
+            children: <Members id={id} />
+          },
+          { label: 'Media', key: 'media' },
+          { label: 'Videos', key: 'files' },
+          {
+            label: 'Events',
+            key: 'events',
+            children: <EventsWrapper query={{ group: id }}><Events group={id} /></EventsWrapper>
+          }
+        ]}
+      />
     </div>
   </GroupContext.Provider>
 }

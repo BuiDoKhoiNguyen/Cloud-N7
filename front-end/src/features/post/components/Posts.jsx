@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query'
 import PostApi from '../services/PostApi'
-import Post from './Post'
+import {Post} from './Post'
 import { useEffect, useRef, useState } from 'react'
 
 const LIMIT = 3
@@ -40,7 +40,7 @@ export default function Posts({query = {}, api = PostApi.get}) {
 
   return <div className='flex flex-col gap-5'>
     {posts.length === 0 && <div className='text-center font-semibold'>No posts</div>}
-    {posts.map(e => <div key={e._id}><Post id={e._id} /></div>)}
+    {posts.map(e => <div key={e._id} className='bg-surface text-onSurface shadow rounded-md p-5'><Post id={e._id} /></div>)}
     <div ref={loadingRef}></div>
   </div>
 }

@@ -50,7 +50,7 @@ export default function ({ id, limit = 10}) {
     }
   }, [])
 
-  return <div className="flex flex-col gap-5">
+  return <div className="flex flex-col gap-3">
     <div ref={loadingRef}></div>
     {messages.map((e, i) => <div ref={(i === messages.length - 1 ? lastRef : null)} key={e._id}><Message id={e._id} /></div>)}
   </div>

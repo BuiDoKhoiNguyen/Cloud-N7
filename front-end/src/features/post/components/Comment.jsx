@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Skeleton } from "antd";
 import { memo, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useQuery } from "react-query";
@@ -12,6 +12,7 @@ import Comments from './Comments';
 import CreateComment from './CreateComment';
 import { LikeComment, LikeCommentDetail } from "./LikeComment";
 import UpdateComment from "./UpdateComment";
+import { formatDate } from "@/utils";
 
 export default memo(function ({ id }) {
   const { user } = useUser()
@@ -24,7 +25,7 @@ export default memo(function ({ id }) {
     queryFn: () => CommentApi.getById(id)
   })
 
-  if (query.isLoading || query.isError) return <></>
+  if (query.isLoading || query.isError) return <Skeleton active className="w-full h-16" />;
 
   const comment = query.data
 
@@ -40,7 +41,7 @@ export default memo(function ({ id }) {
                 <div className="flex gap-2 font-semibold items-center">
                   <Link to={`/users/${comment.user._id}`}>{comment.user.firstName + ' ' + comment.user.lastName}</Link>
                   <div>&#x2022;</div>
-                  <div className="text-sm">{getDiff(comment.createdAt)}</div>
+                  <div className="text-xs">{formatDate(comment.createdAt, "fromNow")}</div>
                 </div>
                 {comment.content && <div className="bg-background text-onBackground p-2 rounded-e-md rounded-b-md whitespace-pre-line">{comment.content}</div>}
                 {comment.files.map(e => <Link to={`/files/${e}`} className="max-w-60 rounded-md overflow-hidden" key={e}><FilePreview id={e} /></Link>)}
@@ -56,7 +57,7 @@ export default memo(function ({ id }) {
             </div>
             <div className="flex items-center">
               <LikeComment id={comment._id} />
-              <Button onClick={() => setCreate(true)} ><div className="text-sm capitalize font-semibold">Reply</div></Button>
+              <Button type="text" onClick={() => setCreate(true)} ><div className="text-sm capitalize font-semibold">Reply</div></Button>
               <LikeCommentDetail id={comment._id} />
             </div>
           </div>}

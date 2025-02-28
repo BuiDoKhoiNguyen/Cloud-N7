@@ -1,14 +1,14 @@
+import { Button, Divider } from "antd";
 import { useState } from "react";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { FileDetail } from "../components";
-import { CommentPost, CommentPostDetail, Comments, LikePost, LikePostDetail, Live, PostApi, PostContext, SharePost, Vote } from "../features/post";
-import CreateComment from "../features/post/components/CreateComment";
-import { getDiff } from "../utils/parseDate";
 import MainNavBar from "../components/MainNavBar";
 import { GroupAccount } from "../features/group";
-import { Button } from "@mui/material";
+import { Comments, Live, PostAction, PostApi, PostContext, Vote } from "../features/post";
+import CreateComment from "../features/post/components/CreateComment";
+import { getDiff } from "../utils/parseDate";
 
 export default function Post() {
   const params = useParams()
@@ -64,20 +64,8 @@ export default function Post() {
             {post.group && <GroupAccount group={post.group} />}
           </div>
           {post.type == 'Vote' && <div className=""><Vote post={post} /></div>}
-
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between">
-              <LikePostDetail id={post._id} />
-              <CommentPostDetail id={post._id} />
-            </div>
-            <div className="flex gap-2">
-              <LikePost id={post._id} detail={false} />
-              <div onClick={() => setOpen(!detail)}><CommentPost id={post._id} /></div>
-              <div className="grow"></div>
-              <SharePost id={post._id} />
-            </div>
-          </div>
-
+          <Divider/>
+          <PostAction post={post} />
           <CreateComment />
           <Comments q={{ post: id, comment: "" }} />
 

@@ -1,12 +1,12 @@
+import { TextField } from "@mui/material"
+import { Form, Input } from "antd"
 import { useRef, useState } from "react"
 import { IoMdSend } from "react-icons/io"
 import { MdAdd, MdDelete, MdDone, MdOutlineHowToVote } from "react-icons/md"
 import { useQueryClient } from "react-query"
 import { toast } from "react-toastify"
-import { Input } from "../../../components/ui"
 import Upload from '../../../components/Upload'
 import MessageApi from "../services/message"
-import { IconButton, TextField } from "@mui/material"
 
 function CreateVote({ id }) {
   const [open, setOpen] = useState(false)
@@ -57,20 +57,8 @@ function CreateVote({ id }) {
 }
 
 export default function CreateMessage({ id }) {
-  const contentRef = useRef()
   const [files, setFiles] = useState([])
-
-  const handleCreate = (e) => {
-    e.preventDefault()
-    const formData = new FormData()
-    if (contentRef.current.value) formData.append('content', contentRef.current.value)
-    formData.append('groupChat', id)
-    formData.append('type', 'message')
-    files.forEach(e => formData.append('files', e))
-    MessageApi.create(formData).catch(err => toast(err.message, { type: 'error' }))
-    setFiles([])
-    contentRef.current.value = ''
-  }
+  const [form] = Form.useForm()
 
   const handleDrop = e => {
     console.log(e)
@@ -78,15 +66,27 @@ export default function CreateMessage({ id }) {
     setFiles([...files, ...e.dataTransfer.files])
   }
 
+  const onFinish = async (values) => {
+    try {
+      const formData = new FormData()
+      values.content && formData.append('content', values.content)
+      formData.append('groupChat', id)
+      formData.append('type', 'message')
+      files.forEach(e => formData.append('files', e))
+      await MessageApi.create(formData)
+      setFiles([])
+      form.resetFields()
+    } catch (error) {
+      toast(error.message, { type: 'error' })
+    }
+  }
 
-  return <form onDrop={handleDrop} onSubmit={handleCreate} className="flex flex-col gap-2">
-    <TextField variant="outlined" placeholder={'Nhập nội dung'} inputRef={contentRef} slotProps={{
-      input: {
-        endAdornment: <IconButton onClick={handleCreate} color="primary"><IoMdSend className="w-6 h-6" /></IconButton>
-      }
-    }} />
-    <div className="max-w-[500px]">
+  return <Form form={form} onFinish={onFinish} onDrop={handleDrop} className="flex flex-col gap-1">
+    <Form.Item noStyle name={"content"} rules={[{ required: true, message: 'Vui lòng nhập nội dung' }]}>
+      <Input placeholder="Nhập nội dung" suffix={<IoMdSend />} />
+    </Form.Item>
+    <div className="max-w-sm max-h-sm">
       <Upload files={files} setFiles={setFiles} />
     </div>
-  </form>
+  </Form>
 }

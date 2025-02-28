@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui'
 import { useUser } from '../../../hooks/user'
 import { parseDate } from '../../../utils/parseDate'
 import MessageApi from '../services/message'
+import { formatDate } from '@/utils'
 
 function Message({ message }) {
   return <div className=' flex flex-col gap-2 break-all'>
@@ -54,7 +55,7 @@ export default memo(({ id }) => {
         {message.type == 'vote' && <Vote vote={message} />}
         {message.type == 'call' && <Call call={message} />}
       </div>
-      <div className={`${isMine ? 'text-end' : ""} text-sm`}>{new Date(message.createdAt).toLocaleTimeString('vi-VN', { hour: "numeric", minute: "numeric" })}</div>
+      <div className={`${isMine ? 'text-end' : ""} text-sm`}>{formatDate(message.createdAt, "timeShort")}</div>
     </div>
   </div>
 

@@ -1,10 +1,10 @@
-import { Button, Divider, MenuItem, Select } from "@mui/material";
-import { CreateGroup, GroupApi } from "../features/group";
+import { Button, Select, Tabs } from "antd";
 import { useEffect, useState } from "react";
-import { Posts } from "../features/post";
-import { UserApi } from "../features/account";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
+import { UserApi } from "../features/account";
+import { CreateGroup, GroupApi } from "../features/group";
+import { Posts } from "../features/post";
 
 
 function GroupCard({ id }) {
@@ -22,13 +22,12 @@ function GroupCard({ id }) {
     </div>
 
     <div className="text-center">
-      <Link to={`/groups/${id}/posts`} className="font-semibold text-xl hover:text-primary">{group.name}</Link>
+      <Link to={`/groups/${id}`} className="font-semibold text-xl hover:text-primary">{group.name}</Link>
       <div className=" text-sm">Public group</div>
     </div>
 
     <div className="flex gap-2 justify-center text-sm">
       <div className=" text-center basis-1/3"><div className="font-semibold">{1032}</div> Members</div>
-      <Divider orientation="vertical" flexItem />
       <div className="text-center basis-1/3"><div className="font-semibold">{429}</div> Posts per day</div>
     </div>
 
@@ -51,49 +50,49 @@ function GroupCard({ id }) {
 
 export default function Groups() {
 
-  const [nav, setNav] = useState(0)
   const [groups, setGroups] = useState([])
 
   useEffect(() => {
-    if (nav === 0) {
-      UserApi.getGroups({}).then(res => {
-        setGroups(res)
-      })
-    }
-  }, [nav])
+    UserApi.getGroups({}).then(res => {
+      setGroups(res)
+    })
+  }, [])
 
   return <div className="flex flex-col gap-10">
 
     <div className="p-5 rounded-md shadow bg-surface text-onSurface flex flex-col gap-5">
       <div className="flex gap-5 items-center">
-        <div className="font-semibold text-2xl">Group</div>
+        <div className="font-semibold text-xl">Group</div>
         <div className="grow"></div>
-        <Select variant="outlined" defaultValue="Alphabetical">
-          <MenuItem value="Alphabetical">Alphabetical</MenuItem>
-          <MenuItem value="Most members">Most members</MenuItem>
-          <MenuItem value="Newest group">Newest group</MenuItem>
-          <MenuItem value="Recently active">Recently active</MenuItem>
+        <Select placeholder="Sort by" options={[
+          { value: 'Alphabetical', label: 'Alphabetical' },
+          { value: 'Most members', label: 'Most members' },
+          { value: 'Newest group', label: 'Newest group' },
+          { value: 'Recently active', label: 'Recently active' }
+        ]}>
         </Select>
         <CreateGroup />
       </div>
-      <div className="flex gap-1 text-nowrap overflow-y-auto pb-3 select-none">
-        {['Joined groups', `Friends's groups`, 'Suggested for you', 'Popular near you',].map((e, i) => <div key={i} onClick={() => { setNav(i) }} className={`${nav === i ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2`}>{e}</div>)}
-      </div>
+      <Tabs items={['Joined groups', `Friends's groups`, 'Suggested for you', 'Popular near you',].map(e => ({
+        key: e,
+        label: <div className="text-sm font-semibold">{e}</div>,
+      }))} />
       <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
         {groups.map(e => <div key={e}><GroupCard id={e} /> </div>)}
       </div>
-      <Button variant="text">View more</Button>
+      <Button >View more</Button>
     </div>
 
     <div className="p-5 rounded-md shadow bg-surface text-onSurface flex flex-col gap-5">
       <div className="flex gap-5 items-center">
-        <div className="font-semibold text-2xl">Post</div>
+        <div className="font-semibold text-xl">Post</div>
         <div className="grow"></div>
-        <Select variant="outlined" defaultValue={"Recently"}>
-          <MenuItem value="Recently">Recently</MenuItem>
-          <MenuItem value="Top">Top</MenuItem>
-          <MenuItem value="Most commented">Most commented</MenuItem>
-          <MenuItem value="Most shared">Most shared</MenuItem>
+        <Select placeholder="Sort by" options={[
+          { value: 'Latest', label: 'Latest' },
+          { value: 'Most liked', label: 'Most liked' },
+          { value: 'Most commented', label: 'Most commented' },
+          { value: 'Most shared', label: 'Most shared' }
+        ]}>
         </Select>
       </div>
     </div>

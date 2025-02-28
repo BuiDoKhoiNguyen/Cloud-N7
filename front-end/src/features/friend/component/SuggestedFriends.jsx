@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query'
 import api from '../services/api'
-import {FriendCard} from './Friends'
+import { FriendCard } from './Friends'
+import { Card } from 'antd'
 
 export default function () {
 
@@ -10,10 +11,9 @@ export default function () {
     initialData: []
   })
 
-  return <div className='card flex flex-col gap-5'>
-    <div className='text-2xl font-semibold'>Gợi ý kết bạn</div>
+  return <Card title='Gợi ý kết bạn'>
     <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
       {query.data.map(e => <FriendCard _status='suggested' id={e._id} />)}
     </div>
-  </div>
+  </Card>
 }

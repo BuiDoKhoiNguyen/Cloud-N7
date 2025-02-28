@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Tabs } from "antd";
 import { useState } from "react";
 import { IoCalendarNumberOutline, IoLocationOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
@@ -43,9 +43,6 @@ function EventCard({ event }) {
 }
 
 function Events({ events, loadMore, hasMore }) {
-
-  const [nav, setNav] = useState(0)
-
   return <div className="flex bg-background gap-5 py-5 sm:px-3 max-w-[1300px] mx-auto max-lg:flex-col">
     <div className="basis-1/4">
       <MainNavBar />
@@ -53,19 +50,21 @@ function Events({ events, loadMore, hasMore }) {
     <div className="flex flex-col gap-5 grow">
       <div className="card p-5 flex flex-col gap-5">
         <div className="flex justify-between">
-          <div className="text-2xl font-semibold">Events</div>
+          <div className="text-xl font-semibold">Events</div>
           <CreateEvent />
         </div>
-        <div className="flex gap-1 text-nowrap overflow-y-auto pb-3 select-none">
-          {["Top", "Local", "This week", "Online", "Friends", "Following"].map((e, i) => <div key={i} onClick={() => { setNav(i) }} className={`${nav === i ? 'text-primary border-primary' : 'hover:text-primary/50 border-transparent'} font-semibold px-4 pb-1 cursor-pointer border-b-2`}>{e}</div>)}
-        </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5">
-          {events.map(e => <EventCard key={event._id} event={e} />)}
-        </div>
-        {hasMore && <Button onClick={loadMore} fullWidth variant="outlined" color="primary">Load more</Button>}
+        <Tabs items={["Top", "Local", "This week", "Online", "Friends", "Following"].map((e, i) => ({
+          label: <div className="font-semibold">{e}</div>,
+          key: i,
+          children: <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5">
+            {events.map(e => <EventCard key={e._id} event={e} />)}
+          </div>
+        }))} />
+
+        {hasMore && <Button onClick={loadMore}>Load more</Button>}
       </div>
     </div>
-  </div>
+  </div >
 }
 
 export default function Page() {

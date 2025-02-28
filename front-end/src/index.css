@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --primary: 15, 111, 236;
-  --background: 239, 242, 246;
-  --surface: 255, 255, 255;
-  --on-primary: 255, 255, 255;
-  --on-background: 103, 106, 121;
-  --on-surface: 103, 106, 121;
+  --primary: #1a79ff;          /* rgb(15, 111, 236) */
+  --background: #fafafa;       /* rgb(239, 242, 246) */
+  --surface: #ffffff;          /* rgb(255, 255, 255) */
+  --on-primary: #ffffff;       /* rgb(255, 255, 255) */
+  --on-background: #000000e0;    /* rgb(103, 106, 121) */
+  --on-surface: #000000e0;       /* rgb(103, 106, 121) */
 }
 
 .dark {
-  --primary: 15, 111, 236;
-  --background: 18, 18, 18;
-  --surface: 33, 33, 33;
-  --on-primary: 217, 217, 217;
-  --on-background: 217, 217, 217;
-  --on-surface: 217, 217, 217;
+  --primary: #1668dc;          /* rgb(15, 111, 236) */
+  --background: #141414;       /* rgb(18, 18, 18) */
+  --surface: #1f1f1f;          /* rgb(33, 33, 33) */
+  --on-primary: #ffffffd9;       /* rgb(217, 217, 217) */
+  --on-background: #ffffffd9;    /* rgb(217, 217, 217) */
+  --on-surface: #ffffffd9;       /* rgb(217, 217, 217) */
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -37,20 +37,18 @@ html {
 
 /* Change the scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--primary));
+  background: var(--primary);
   border-radius: 8px;
 }
 
 @theme inline {
-  --color-primary: rgb(var(--primary));
-  --color-background: rgb(var(--background));
-  --color-surface: rgb(var(--surface));
-  --color-onPrimary: rgb(var(--on-primary));
-  --color-onBackground: rgb(var(--on-background));
-  --color-onSurface: rgb(var(--on-surface));
+  --color-primary: var(--primary);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-onPrimary: var(--on-primary);
+  --color-onBackground: var(--on-background);
+  --color-onSurface: var(--on-surface);
 }
-
-
 
 @layer components {
   .card {

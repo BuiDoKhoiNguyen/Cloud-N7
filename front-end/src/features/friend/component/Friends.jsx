@@ -1,10 +1,10 @@
+import { Button, Card } from "antd";
 import { cloneElement, useEffect, useRef, useState } from "react";
-import { useUser } from '../../../hooks/user';
-import api from '../services/api';
-import UserApi from '../../account/services/api';
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
-import {Divider, Button} from "@mui/material"
+import { useUser } from '../../../hooks/user';
+import UserApi from '../../account/services/api';
+import FriendApi from '../services/api';
 
 export function FriendCard({ id, _status = "suggested" }) {
   const [status, setStatus] = useState(_status)
@@ -48,7 +48,6 @@ export function FriendCard({ id, _status = "suggested" }) {
 
     <div className="flex gap-2 justify-center text-sm">
       <div className=" text-center basis-1/3"><div className="font-semibold">{1032}</div> Members</div>
-      <Divider orientation="vertical" flexItem />
       <div className="text-center basis-1/3"><div className="font-semibold">{429}</div> Posts per day</div>
     </div>
 
@@ -83,7 +82,7 @@ export function FriendsWrapper({ children, page = 0, limit = 10, query = {} }) {
 
   const loadMore = async () => {
     if (hasMoreRef.current) {
-      await api.get({ q: query }).then(e => {
+      await FriendApi.get({ q: query }).then(e => {
         hasMoreRef.current = e.hasMore
         pageRef.current++
         setFriends(prev => [...prev, ...e.friends])
@@ -92,7 +91,7 @@ export function FriendsWrapper({ children, page = 0, limit = 10, query = {} }) {
   }
 
   useEffect(() => {
-    api.get({ q: query, page: page, limit: limit }).then(e => {
+    FriendApi.get({ q: query, page: page, limit: limit }).then(e => {
       hasMoreRef.current = e.hasMore
       pageRef.current = page + 1
       setFriends(e.friends)
@@ -106,32 +105,27 @@ export function FriendsWrapper({ children, page = 0, limit = 10, query = {} }) {
 
 function _Friends({ hasMore, loadMore, friends }) {
   const { user } = useUser()
-  return <div>
-    <div className='flex flex-col gap-5 card'>
-      <div className="font-semibold text-2xl">Bạn bè ({friends.length})</div>
-      <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
-        {friends.map(e => <FriendCard _status='accepted' id={user._id === e.sender ? e.receiver : e.sender} />)}
-      </div>
+  return <Card title="Bạn bè">
+    <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
+      {friends.map(e => <FriendCard _status='accepted' id={user._id === e.sender ? e.receiver : e.sender} />)}
     </div>
-  </div>
+  </Card>
 }
 
 function _Requested({ hasMore, loadMore, friends }) {
-  return <div className='flex flex-col gap-5 card'>
-    <div className="font-semibold text-2xl">Các yêu cầu</div>
+  return <Card title="Các yêu cầu">
     <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
       {friends.map(e => <FriendCard _status='requested' id={e.sender} />)}
     </div>
-  </div >
+  </Card>
 }
 
 function _Sending({ hasMore, loadMore, friends }) {
-  return <div className='flex flex-col gap-5 card'>
-    <div className="font-semibold text-2xl">Lời mời đã gửi đi</div>
+  return <Card title="Lời mời đã gửi đi">
     <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-5">
       {friends.map(e => <FriendCard _status='sending' id={e.receiver} />)}
     </div>
-  </div>
+  </Card>
 }
 
 export function Friends() {

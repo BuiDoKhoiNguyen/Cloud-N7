@@ -1,23 +1,27 @@
 import amqplib from 'amqplib'
 
 class RabbitMQ {
-  channel 
+  channel
 
   async connect() {
-    const connection = await amqplib.connect(process.env.RABBITMQ_URL)
-    this.channel = await connection.createChannel()
+    try {
+      const connection = await amqplib.connect(process.env.RABBITMQ_URL)
+      this.channel = await connection.createChannel()
 
-    connection.on('close', () => {
-      console.error('RabbitMQ connection closed, reconnecting...');
-      setTimeout(() => this.connect(), 1000)
-    })
+      connection.on('close', () => {
+        console.error('RabbitMQ connection closed, reconnecting...');
+        setTimeout(() => this.connect(), 1000)
+      })
 
-    connection.on('error', (err) => {
-      console.error('RabbitMQ connection error:', err);
-      setTimeout(() => this.connect(), 1000)
-    })
+      connection.on('error', (err) => {
+        console.error('RabbitMQ connection error:', err);
+        setTimeout(() => this.connect(), 1000)
+      })
 
-    console.log('RabbitMQ connected');
+      console.log('RabbitMQ connected');
+    } catch (error) {
+      console.error('Error connecting to RabbitMQ:', error);
+    }
   }
 }
 

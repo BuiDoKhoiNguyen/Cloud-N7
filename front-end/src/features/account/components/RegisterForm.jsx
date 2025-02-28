@@ -1,84 +1,126 @@
-import { Button, TextField } from '@mui/material'
-import { useRef, useState } from 'react'
-import { IoIosLock } from 'react-icons/io'
-import { MdEmail, MdPerson, MdPhoneIphone } from 'react-icons/md'
-import { useQueryClient } from 'react-query'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { FileInput } from '../../../components/ui'
-import api from '../services/api'
+import { useState } from "react";
+import { Form, Input, Button, Upload } from "antd";
+import { MdEmail, MdPerson, MdPhoneIphone } from "react-icons/md";
+import { IoIosLock } from "react-icons/io";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useQueryClient } from "react-query";
+import api from "../services/api";
 
-export default function () {
-  const navigate = useNavigate()
-  const [image, setImage] = useState(null)
-  const queryClient = useQueryClient()
-  const phoneNumberRef = useRef(),
-    emailRef = useRef(),
-    passwordRef = useRef(),
-    repeatPasswordRef = useRef(),
-    firstNameRef = useRef(),
-    lastNameRef = useRef()
+export default function Register() {
+  const [form] = Form.useForm();
+  const [image, setImage] = useState(null);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const handleRegister = () => {
-    if (passwordRef.current.value != repeatPasswordRef.current.value) return toast('Mật khẩu không khớp', { type: 'warning' })
-    const formData = new FormData()
-    if (phoneNumberRef.current.value) formData.append('phoneNumber', phoneNumberRef.current.value)
-    if (passwordRef.current.value) formData.append('password', passwordRef.current.value)
-    if (emailRef.current.value) formData.append('email', emailRef.current.value)
-    if (firstNameRef.current.value) formData.append('firstName', firstNameRef.current.value)
-    if (lastNameRef.current.value) formData.append('lastName', lastNameRef.current.value)
-    if (image) formData.append('avatar', image)
-    api.create(formData)
-      .then((user) => { queryClient.invalidateQueries(['users']); navigate('/login') })
-      .catch(err => toast(err.message, { type: 'error' }))
-  }
+  const handleRegister = (values) => {
+    if (values.password !== values.repeatPassword) {
+      return toast("Mật khẩu không khớp", { type: "warning" });
+    }
 
-  return <div className="flex flex-col gap-5">
+    const formData = new FormData();
+    formData.append("phoneNumber", values.phoneNumber);
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+    formData.append("firstName", values.firstName);
+    formData.append("lastName", values.lastName);
+    if (image) formData.append("avatar", image);
 
-    <div className="text-4xl font-bold text-center">Sign In</div>
-    <div>Already have an account? <Link to={'/login'} className="text-primary text-center">Sign in here</Link></div>
+    api
+      .create(formData)
+      .then(() => {
+        queryClient.invalidateQueries(["users"]);
+        navigate("/login");
+      })
+      .catch((err) => toast(err.message, { type: "error" }));
+  };
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <MdPhoneIphone className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="phonenumber" placeholder={'Your phone number'} inputRef={phoneNumberRef} />
+  return (
+    <Form
+      layout="vertical"
+      form={form}
+      onFinish={handleRegister}
+      className="max-w-md mx-auto p-5"
+    >
+      <h2 className="text-4xl font-bold text-center mb-4">Sign Up</h2>
+      <p className="text-center mb-6">
+        Already have an account?{" "}
+        <Link to="/login" className="text-blue-500">
+          Sign in here
+        </Link>
+      </p>
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <MdEmail className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="email" type='email' placeholder={'Your email'} inputRef={emailRef} />
+      <Form.Item
+        name="phoneNumber"
+        rules={[{ required: true, message: "Please input your phone number!" }]}
+      >
+        <Input placeholder="Your phone number" prefix={<MdPhoneIphone />} />
+      </Form.Item>
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <IoIosLock className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="password" placeholder={'Your password'} type={'password'} inputRef={passwordRef} />
+      <Form.Item
+        name="email"
+        rules={[
+          { required: true, message: "Please input your email!" },
+          { type: "email", message: "Invalid email format!" },
+        ]}
+      >
+        <Input placeholder="Your email" prefix={<MdEmail />} />
+      </Form.Item>
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <IoIosLock className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="repeatpassword" placeholder={'Repeat password'} type={'password'} inputRef={repeatPasswordRef} />
+      <Form.Item
+        name="password"
+        rules={[{ required: true, message: "Please input your password!" }]}
+      >
+        <Input.Password placeholder="Your password" prefix={<IoIosLock />} />
+      </Form.Item>
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <MdPerson className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="firstname" placeholder={'Your first name'} inputRef={firstNameRef} />
+      <Form.Item
+        name="repeatPassword"
+        rules={[{ required: true, message: "Please repeat your password!" }]}
+      >
+        <Input.Password placeholder="Repeat password" prefix={<IoIosLock />} />
+      </Form.Item>
 
+      <Form.Item
+        name="firstName"
+        rules={[{ required: true, message: "Please input your first name!" }]}
+      >
+        <Input placeholder="Your first name" prefix={<MdPerson />} />
+      </Form.Item>
 
-    <TextField slotProps={{
-      input: {
-        startAdornment: <MdPerson className=' w-6 h-6 mr-5' />
-      }
-    }} className="grow" name="lastname" placeholder={'Your last name'} inputRef={lastNameRef} />
+      <Form.Item
+        name="lastName"
+        rules={[{ required: true, message: "Please input your last name!" }]}
+      >
+        <Input placeholder="Your last name" prefix={<MdPerson />} />
+      </Form.Item>
 
-    {image && <img src={URL.createObjectURL(image)} className='w-72 rounded-full h-72 object-cover m-auto'></img>}
-    <div className="m-auto w-max">
-      <FileInput className={'btn-teal dark:btn-grey'} onChange={e => setImage(e.target.files[0])} accept={'image/*'} />
-    </div>
-    <Button variant="contained" onClick={handleRegister}>Tạo mới</Button>
-  </div>
+      {image && (
+        <img
+          src={URL.createObjectURL(image)}
+          alt="Avatar preview"
+          className="w-40 h-40 object-cover rounded-full mx-auto mb-4"
+        />
+      )}
+
+      <Form.Item label="Avatar">
+        <Upload
+          accept="image/*"
+          maxCount={1}
+          beforeUpload={(file) => {
+            setImage(file);
+            return false; // prevent automatic upload
+          }}
+        >
+          <Button>Upload Avatar</Button>
+        </Upload>
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Tạo mới
+        </Button>
+      </Form.Item>
+    </Form>
+  );
 }

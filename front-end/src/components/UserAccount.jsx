@@ -1,4 +1,3 @@
-import { MdAccountCircle } from "react-icons/md"
 import { useQuery } from "react-query"
 import { Link } from "react-router-dom"
 import { UserApi } from '../features/account'

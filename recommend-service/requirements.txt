@@ -1,0 +1,10 @@
+flask==2.2.5
+flask_restful==0.3.10
+flask_mongoengine==1.0.0
+faker==36.1.1
+scikit-learn==1.6.1
+pandas==2.2.3
+tensorflow==2.18.0
+networkx==3.4.2
+sentence_transformers==3.4.1
+tf-keras==2.18.0

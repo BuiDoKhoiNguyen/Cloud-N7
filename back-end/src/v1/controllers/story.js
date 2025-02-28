@@ -32,7 +32,7 @@ class Controller {
   }
 
   constructor() {
-    this.#init()
+    // this.#init()
   }
 
   async create(req, res, next) {

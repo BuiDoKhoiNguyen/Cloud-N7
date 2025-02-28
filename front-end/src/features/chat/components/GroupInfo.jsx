@@ -2,7 +2,8 @@ import { useState } from "react"
 import { FaCircleInfo } from "react-icons/fa6"
 import { useQuery } from "react-query"
 import api from '../services/groupChat'
-import { IconButton } from "@mui/material"
+import { Button } from "antd";
+import { IoInformation } from "react-icons/io5";
 
 export default function GroupInfo({ id }) {
   const [open, setOpen] = useState(false)
@@ -12,9 +13,8 @@ export default function GroupInfo({ id }) {
   })
 
   return <div className=" relative">
-    <IconButton onClick={() => setOpen(!open)} color="primary">
-      <FaCircleInfo className="w-6 h-6" />
-    </IconButton>
+    <Button size="small" type="primary" onClick={() => setOpen(!open)} icon={<IoInformation />} className="!rounded-full">
+    </Button>
     <div className={`absolute right-0 ${open ? '' : ' translate-x-'}`}>
 
     </div>

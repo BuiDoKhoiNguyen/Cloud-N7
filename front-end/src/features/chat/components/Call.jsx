@@ -1,4 +1,5 @@
-import { Button, Card, Dialog, Divider, IconButton, Tooltip } from "@mui/material"
+import { Card, Dialog, Divider, IconButton, Tooltip } from "@mui/material"
+import { Button } from "antd"
 import { useEffect, useRef, useState } from "react"
 import { FaMicrophone } from "react-icons/fa"
 import { MdVideoCall } from "react-icons/md"
@@ -228,7 +229,7 @@ function Call({ id, setOpen }) {
     <div className="p-5 flex gap-10 grow overflow-y-hidden">
 
       <div className="flex flex-col gap-5 basis-3/4 ">
-        
+
         <div className="overflow-x-auto flex gap-5 shrink-0" ref={ref}>
           <div className="overflow-hidden rounded-lg relative">
             <video muted autoPlay={true} ref={myVideoRef} className="h-32 object-cover" />
@@ -318,9 +319,8 @@ export default function ({ id }) {
     </Dialog>
 
     <Tooltip title={!query.data.length || query.data[query.data.length - 1].status == "ended" ? 'Bắt đầu cuộc gọi' : 'Tham gia cuộc gọi'}>
-      <IconButton onClick={handleCall} color={!query.data.length || query.data[query.data.length - 1].status == "ended" ? 'primary' : 'warning'}>
-        <MdVideoCall className="w-6 h-6" />
-      </IconButton>
+      <Button size="small" icon={<MdVideoCall />} className="!rounded-full" onClick={handleCall} danger={query.data.length && query.data[query.data.length - 1].status !== "ended"}>
+      </Button>
     </Tooltip>
   </div>
 }

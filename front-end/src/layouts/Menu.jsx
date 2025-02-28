@@ -1,18 +1,14 @@
-import { useState } from "react"
-import { IoMdMenu } from "react-icons/io"
-import { FaUserFriends } from "react-icons/fa";
+import { IconButton, Switch } from "@mui/material";
+import { useContext, useState } from "react";
 import { CgShoppingCart } from "react-icons/cg";
-import { MdOutlineOndemandVideo } from "react-icons/md";
+import { FaFacebookMessenger, FaUserFriends } from "react-icons/fa";
 import { GrGroup } from "react-icons/gr";
+import { IoMdMenu } from "react-icons/io";
 import { IoGameController } from "react-icons/io5";
-import { FaFacebookMessenger } from "react-icons/fa";
-import { useContext } from "react";
-import CommonContext from "../store/CommonContext";
+import { MdOutlineOndemandVideo } from "react-icons/md";
 import { Link } from "react-router-dom";
-import Toogle from "../components/ui/Toogle";
 import { useUser } from "../hooks/user";
-import { UserAccount } from "../components";
-import { IconButton, Switch, ToggleButton } from "@mui/material";
+import CommonContext from "../store/CommonContext";
 
 export default function () {
   const { darkMode, setDarkMode } = useContext(CommonContext)

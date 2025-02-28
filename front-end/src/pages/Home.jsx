@@ -1,4 +1,4 @@
-import { Button, IconButton } from "@mui/material";
+import { Button } from "antd";
 import { MdAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
 import MainNavBar from "../components/MainNavBar";
@@ -14,6 +14,7 @@ export default function () {
       <CreatePost />
       <Posts query={{}} />
     </div>
+
     <div className="basis-1/4 shrink-0 flex lg:flex-col max-md:flex-col gap-5">
       <div className="card flex flex-col gap-5 max-lg:basis-1/2">
         <div className="heading ">Who to follow</div>
@@ -26,14 +27,13 @@ export default function () {
                 <div className="text-sm">Web Developer</div>
               </div>
               <div className="grow" />
-              <IconButton color="primary">
-                <MdAdd size={24} />
-              </IconButton>
+              <Button icon={<MdAdd />} type="text" >
+              </Button>
             </div>
           ))
         }
 
-        <Button variant="outlined">View more</Button>
+        <Button>View more</Button>
       </div>
 
       <div className="card flex flex-col gap-5 max-lg:basis-1/2">
@@ -46,7 +46,7 @@ export default function () {
             </div>
           ))
         }
-        <Button variant="outlined">View more</Button>
+        <Button >View more</Button>
       </div>
 
     </div>

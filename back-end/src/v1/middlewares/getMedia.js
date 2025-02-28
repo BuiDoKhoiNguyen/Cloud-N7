@@ -6,7 +6,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const FOLDER = 'facebook'
+const FOLDER = process.env.CLOUDINARY_FOLDER
 
 export default async function (req, res, next) {
   try {

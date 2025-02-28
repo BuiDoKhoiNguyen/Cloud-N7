@@ -41,7 +41,7 @@ Promise.all([
     rabitmq.connect()
 ])
     .then(async () => {
-        const { default: router} = await import('./v1/routers/index.js')
+        const { default: router } = await import('./v1/routers/index.js')
         app.use(router)
         app.use(handle_404)
         app.use(handle_error)

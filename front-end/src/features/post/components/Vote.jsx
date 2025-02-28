@@ -31,7 +31,6 @@ export function Vote({ post }) {
         <div className="text-primary text-xss font-semibold shrink-0">{percentage}%</div>
       </div>
     })}
-    <div className="text-primary text-xs font-semibold">{total ? total + ' lượt bình chọn' : 'Chưa có bình chọn'}</div>
   </div>
 }
 

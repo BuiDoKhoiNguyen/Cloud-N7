@@ -5,7 +5,7 @@ import { useQuery } from "react-query"
 import { Link, useParams } from "react-router-dom"
 import { FilePreview } from "../components"
 import { GroupApi, GroupContext, Members } from '../features/group'
-import { AttendEvent, CreateEvent, CreatePost, Posts } from '../features/post'
+import { AttendEvent, CreateEvent, CreatePost, EventsWrapper, Posts } from '../features/post'
 
 function Events({ group, events, loadMore, hasMore }) {
   return <div className="flex flex-col gap-5">
@@ -60,11 +60,11 @@ export default function () {
     <div className="flex flex-col gap-5">
 
       <div className="rounded-md bg-surface text-onSurface overflow-hidden">
-        <img src={group.avatar ? group.avatar.url : 'https://social.webestica.com/assets/images/bg/01.jpg'} className="w-full h-40 object-cover"></img>
+        <img src={group.avatar.url} className="w-full h-40 object-cover"></img>
         <div className="p-5 flex flex-col gap-5">
           <div className="flex gap-2 md:items-center justify-between max-md:flex-col">
             <div className="flex gap-2 items-center">
-              <img src={group.avatar ? group.avatar.url : 'https://social.webestica.com/assets/images/avatar/01.jpg'} className="w-20 h-20 rounded-full object-cover"></img>
+              <img src={group.avatar.url} className="w-20 h-20 rounded-full object-cover"></img>
               <div className="ml-5">
                 <div className="text-xl font-semibold">{group.name}</div>
                 <div className="flex gap-2 items-center">
@@ -110,7 +110,7 @@ export default function () {
 
         {sub === 'connections' && <Members id={id} />}
 
-        {sub === "events" && <EventWrapper query={{ group: id }}><Events group={id} /></EventWrapper>}
+        {sub === "events" && <EventsWrapper query={{ group: id }}><Events group={id} /></EventsWrapper>}
       </div>
     </div>
   </GroupContext.Provider>

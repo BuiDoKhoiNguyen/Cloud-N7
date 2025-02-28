@@ -57,7 +57,7 @@ export default function Page() {
             <div className="text-3xl font-semibold text-ellipsis overflow-hidden text-nowrap">{event.title}</div>
             <div className="mt-2">https://themes.getbootstrap.com/store/webestica</div>
           </div>
-          <div className="shrink-0">
+          <div className="shrink-0 bg-white rounded-md">
             <AttendEvent event={event} />
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function Page() {
           </div>
 
           {event.group && <div>
-            <div className="font-semibold text-xl heading mb-3">From group</div>
+            <div className="font-semibold text-xl heading mb-3">Group</div>
             <GroupAccount group={event.group} />
           </div>}
         </div>

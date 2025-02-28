@@ -1,42 +1,76 @@
-import { useQuery } from 'react-query'
-import { useUser } from '../../../hooks/user'
-import LikePostApi from '../services/LikePostApi'
+import { Button, Popover, Modal, Tabs } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
+import { AiOutlineLike } from "react-icons/ai"
+import { useQuery } from 'react-query'
 import { UserAccount } from '../../../components'
-import { IoCaretDownCircleSharp } from 'react-icons/io5'
-import { AiOutlineLike } from "react-icons/ai";
-import { Button, Dialog, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material'
-const emotions = ["👍", "❤️", "😂", "😭", "😡",]
+import { useUser } from '@/hooks/user'
+import LikePostApi from '../services/LikePostApi'
+import { formatDate } from '@/utils'
 
-export function LikePostDetail({ id, popup = true }) {
+const emotions = [{
+  label: 'like',
+  icon: '👍'
+}, {
+  label: 'love',
+  icon: '❤️'
+}, {
+  label: 'haha',
+  icon: '😂'
+}, {
+  label: 'wow',
+  icon: '😮'
+}, {
+  label: 'sad',
+  icon: '😢'
+}, {
+  label: 'angry',
+  icon: '😡'
+}]
+
+function Detail({ id }) {
   const query = useQuery({
     queryKey: ['likeposts', id],
     queryFn: () => LikePostApi.get({ q: { post: id } }),
     initialData: []
   })
   const group = useMemo(() => Map.groupBy(query.data, ({ type }) => type), [query.data])
-  const [open, setOpen] = useState(false)
-  const [type, setType] = useState(emotions[0])
+  const [type, setType] = useState(emotions[0].icon)
 
   return <div>
-    <Dialog open={open} onClose={() => setOpen(false)}>
-      <div className={`fixed h-[400px] overflow-y-auto max-sm:h-screen max-sm:w-screen bg-surface text-onSurface rounded-lg overflow-hidden shadow top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 z-10`}>
-        <div className="sticky z-1 top-0 flex justify-between gap-5 bg-primary p-2 ">
-          {emotions.map(e => <button className={`p-2 text-xl ${e === type ? 'border-b-2 border-background' : ''} rounded-xs`} onClick={() => setType(e)} key={e}>{e}</button>)}
-        </div>
-        <div className="p-5 flex flex-col gap-3">
-          {group.get(type)?.map(e => <div key={e.user} className="flex gap-10 justify-between items-center">
-            <UserAccount id={e.user} />
-            <div className="">{new Date(e.createdAt).toLocaleString('vi-VI')}</div>
-          </div>)}
-        </div>
-      </div>
-    </Dialog>
-    <button onClick={() => setOpen(popup)} className="flex items-center gap-1">
-      {[...group.keys()].slice(0, 3).map(e => <div key={e}>{e}</div>)}
-      <div className='font-semibold text-sm'>{query.data.length ? query.data.length : "Chưa có lượt thích"}</div>
-    </button>
+    <Tabs defaultActiveKey={type} onChange={setType} className="flex gap-2" items={
+      emotions.map(e => ({
+        key: e.icon,
+        label: <div>{e.icon} {e.label}</div>,
+        children: (
+          <div className="flex flex-col gap-3">
+            {group.get(e.icon)?.map(like => (
+              <div key={like.user} className="flex gap-10 justify-between items-center">
+                <UserAccount id={like.user} />
+                <div className="">{formatDate(like.createdAt, "fromNow")}</div>
+              </div>
+            ))}
+          </div>
+        )
+      }))
+    } />
   </div>
+}
+
+export function LikePostDetail({ post, popup = true }) {
+  const [open, setOpen] = useState(false)
+
+  return <div>
+    <Modal centered open={open} onCancel={() => setOpen(false)} closable={false} footer={[
+      <Button onClick={() => setOpen(false)} key="ok" type="primary" >
+        OK
+      </Button>,
+    ]}>
+      <Detail id={post._id} />
+    </Modal >
+    <Button type='text' size='' onClick={() => setOpen(popup)} className="flex items-center gap-1">
+      <div className='font-semibold'>{post.like_total ? `${emotions.slice(0, 3).reduce((a, b) => a + b.icon, '')}${post.like_total}` : "Chưa có lượt thích"}</div>
+    </Button>
+  </div >
 }
 
 export function LikePost({ id }) {
@@ -57,14 +91,23 @@ export function LikePost({ id }) {
     LikePostApi.delete({ post: id })
   }
 
-  return <div className="flex group relative">
-    <div className={`hidden absolute ${like ? '' : 'group-hover:block'} bg-surface text-onSurface rounded-full shadow btn bottom-5 left-0 text-3xl`}>
-      <div className="flex">{emotions.map(e => <div key={e} onClick={() => handleCreate(e)} className=" hover:-translate-y-1 transition-transform">{e}</div>)}</div>
-    </div>
-    {
-      like ?
-        <Button onClick={handleDelete} className="text-primary"><div className='text-sm font-semibold capitalize'>{like.type} Liked</div></Button> :
-        <Button onClick={() => handleCreate(emotions[0])} startIcon={<AiOutlineLike />}><div className='text-sm font-semibold capitalize'>Like</div></Button>
-    }
-  </div>
+  return (
+    <Popover content={<div className='flex'>
+      <div className="flex gap-2">{emotions.map(e => <div key={e} onClick={() => handleCreate(e)} className=" hover:-translate-y-1 transition-transform text-xl">{e.icon}</div>)}</div>
+    </div>}>
+      <Button
+        onClick={e => {
+          if (!like) {
+            handleCreate(emotions[0].icon)
+          } else {
+            handleDelete()
+          }
+        }}
+        icon={like ? <span >{like.type}</span> : <AiOutlineLike />}
+        type='text'
+      >
+        <div className={`text-sm font-semibold capitalize ${like && 'text-primary'}`}>{like ? 'Liked' : 'Like'}</div>
+      </Button>
+    </Popover>
+  )
 }

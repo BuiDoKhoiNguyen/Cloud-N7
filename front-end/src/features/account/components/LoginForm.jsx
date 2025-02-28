@@ -1,54 +1,75 @@
-import { useRef } from 'react'
-import { IoIosLock } from "react-icons/io"
-import { MdEmail } from "react-icons/md"
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { useUser } from '../../../hooks/user'
-import api from '../services/api'
-import { Checkbox, Button, TextField } from '@mui/material'
+import { useUser } from "@/hooks/user";
+import { Checkbox, Form, Button, Input } from "antd";
+import { IoIosLock } from "react-icons/io";
+import { MdEmail } from "react-icons/md";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../services/api";
 
+export default function Login() {
+  const { setUser } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [form] = Form.useForm();
 
-export default function () {
-  const { setUser } = useUser()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const emailRef = useRef()
-  const passwordRef = useRef()
+  const handleLogin = async (values) => {
+    try {
+      const user = await api.login(values);
+      setUser(user);
+      navigate(location.state?.url || "/");
+    } catch (err) {
+      toast(err.message, { type: "error" });
+    }
+  };
 
-  const handleLogin = (e) => {
-    e.preventDefault()
-    api.login({
-      email: emailRef.current.value,
-      password: passwordRef.current.value,
-    })
-      .then(user => { setUser(user); navigate(location.state?.url ? location.state.url : '/') })
-      .catch(err => toast(err.message, { type: 'error' }))
-  }
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleLogin}
+      className="max-w-md mx-auto p-6"
+    >
+      <h2 className="text-4xl font-bold text-center mb-4">Sign In</h2>
 
-  return <form onSubmit={handleLogin} className="flex flex-col gap-5">
-    <div className="text-4xl font-bold text-center">Sign In</div>
-    <div className=''>Don't have an account? <Link to={'/register'} className="text-primary text-center">Click here to sign up</Link></div>
-
-    <TextField slotProps={{
-      input: {
-        startAdornment: <MdEmail className=' w-6 h-6 mr-5' />
-      }
-    }} variant="outlined" className="grow" name="email" type='email' placeholder='Your email' inputRef={emailRef} />
-
-    <TextField slotProps={{
-      input: {
-        startAdornment: <IoIosLock className=' w-6 h-6 mr-5' />
-      }
-    }}
-      variant="outlined" className="grow" name="password" placeholder='Your password' type={'password'} inputRef={passwordRef} />
-
-    <div className="flex justify-between items-center">
-      <div className="flex items-center">
-        <Checkbox defaultChecked />
-        <div>Remember me?</div>
+      <div className="text-center mb-6">
+        Don't have an account?{" "}
+        <Link to="/register" className="text-primary">
+          Click here to sign up
+        </Link>
       </div>
-      <Link to={'/forgot-password'} className='text-primary'>Forgot password?</Link>
-    </div>
-    <Button onClick={handleLogin} variant="contained">Đăng Nhập</Button>
-  </form>
+
+      <Form.Item
+        name="email"
+        label="Email"
+        rules={[
+          { required: true, message: "Please input your email!" },
+          { type: "email", message: "Invalid email address!" },
+        ]}
+      >
+        <Input placeholder="Your email" prefix={<MdEmail />} type="email" />
+      </Form.Item>
+
+      <Form.Item
+        name="password"
+        label="Password"
+        rules={[{ required: true, message: "Please input your password!" }]}
+      >
+        <Input.Password placeholder="Your password" prefix={<IoIosLock />} />
+      </Form.Item>
+
+      <div className="flex justify-between items-center mb-4">
+        <Form.Item name="remember" valuePropName="checked" noStyle>
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
+
+        <Link to="/forgot-password">Forgot password?</Link>
+      </div>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Đăng Nhập
+        </Button>
+      </Form.Item>
+    </Form>
+  );
 }

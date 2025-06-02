@@ -8,12 +8,18 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "mocha --timeout 20000 './test/**/*.test.js'",
-    "test:dev": "mocha --watch --parallel --timeout 20000 './test/**/*.test.js'"
+    "test:dev": "mocha --watch --parallel --timeout 20000 './test/**/*.test.js'",
+    "migrate-cloudinary": "node scripts/migrate-cloudinary-to-s3.js",
+    "deploy-aws": "aws cloudformation create-stack --stack-name cloud-n7-media-infrastructure --template-body file://../cloudformation/media-infrastructure.yml --capabilities CAPABILITY_NAMED_IAM",
+    "update-aws": "aws cloudformation update-stack --stack-name cloud-n7-media-infrastructure --template-body file://../cloudformation/media-infrastructure.yml --capabilities CAPABILITY_NAMED_IAM",
+    "security-check": "bash scripts/security-check.sh",
+    "invalidate-cdn": "aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths \"/*\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.10.5",
+    "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cloudinary": "^2.5.1",
@@ -26,6 +32,7 @@
     "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
     "redis": "^4.6.13",
+    "sharp": "^0.32.6",
     "socket.io": "^4.7.4"
   },
   "devDependencies": {

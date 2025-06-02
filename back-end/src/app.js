@@ -30,14 +30,12 @@ import handle_error from './v1/middlewares/handle-error.js'
 import connect_mongo from './v1/configs/init.mongo.js'
 import socket from './v1/configs/init.socket.js'
 import redis from './v1/configs/init.redis.js'
-import init_cloudinary from './v1/configs/init.cloudinary.js'
 import rabitmq from './v1/configs/init.rabbitmq.js'
 
 Promise.all([
     connect_mongo(),
     socket.connect(server),
     redis.connect(),
-    init_cloudinary(),
     rabitmq.connect()
 ])
     .then(async () => {

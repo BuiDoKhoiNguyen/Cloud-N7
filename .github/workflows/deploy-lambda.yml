@@ -1,0 +1,72 @@
+name: Deploy Lambda to AWS
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'lambda/image-processor/**'
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
+      - name: Install dependencies
+        working-directory: lambda/image-processor
+        run: |
+          npm install
+          npm run build
+          
+      - name: Package Lambda function
+        working-directory: lambda/image-processor
+        run: |
+          zip -r function.zip . -x '*.git*' 'node_modules/.bin/*'
+          
+      - name: Deploy to Lambda
+        working-directory: lambda/image-processor
+        run: |
+          LAMBDA_FUNCTION_NAME="cloud-n7-image-processor"
+          
+          # Check if Lambda function exists
+          if aws lambda get-function --function-name "$LAMBDA_FUNCTION_NAME" 2>/dev/null; then
+            # Update existing function
+            aws lambda update-function-code \
+              --function-name "$LAMBDA_FUNCTION_NAME" \
+              --zip-file fileb://function.zip
+          else
+            # Create new function
+            aws lambda create-function \
+              --function-name "$LAMBDA_FUNCTION_NAME" \
+              --runtime nodejs16.x \
+              --handler index.handler \
+              --role "${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}" \
+              --zip-file fileb://function.zip \
+              --environment "Variables={BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}}" \
+              --timeout 30 \
+              --memory-size 512
+          fi
+          
+          # Publish a new version
+          VERSION=$(aws lambda publish-version \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --description "Deployed via GitHub Actions on $(date)" \
+            --query 'Version' \
+            --output text)
+            
+          echo "Deployed version $VERSION of Lambda function"

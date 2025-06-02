@@ -9,9 +9,7 @@ class Api {
       })
 }
 
-/**
- * Kiểm tra xem URL của file đến từ nguồn nào
- */
+
 export function determineFileSource(url) {
   if (!url) return 'unknown';
   

@@ -29,7 +29,8 @@ const updatingPattern = Joi.object({
 
 const loginPattern = Joi.object({
   email: Joi.string().email(),
-  password: Joi.string().required()
+  password: Joi.string().required(),
+  remember: Joi.boolean().optional()
 }).unknown(false).required()
 
 const changePasswordPattern = Joi.object({

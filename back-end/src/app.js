@@ -23,6 +23,8 @@ import body_parser from 'body-parser'
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({ extended: true }))
 
+// serve static files (fallback for when AWS S3 is not available)
+app.use('/uploads', express.static('uploads'))
 
 // route app
 import handle_404 from './v1/middlewares/handle-404.js'

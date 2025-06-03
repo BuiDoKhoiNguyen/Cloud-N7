@@ -1,16 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import File from '../models/File.js';
-import AWS from 'aws-sdk';
 import { fileURLToPath } from 'url';
 import initAWS from '../configs/init.aws.js';
 import { createImageVersions } from '../utils/imageProcessor.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { s3, bucketName, cloudFrontDomain } = initAWS();
 
 export default async function (req, res, next) {
   try {
+    const { s3Client, bucketName, cloudFrontDomain, Upload } = initAWS();
+    
     if (req.file) {
       const filePath = path.join(__dirname, '..', '..', '..', 'uploads', req.file.filename);
       const timestamp = Date.now();
@@ -20,41 +20,67 @@ export default async function (req, res, next) {
       // Tạo các phiên bản ảnh khác nhau nếu là image
       const { originalPath, versions } = await createImageVersions(filePath, req.file.mimetype);
       
-      // Upload file gốc lên S3
-      const fileContent = fs.readFileSync(originalPath);
-      const params = {
-        Bucket: bucketName,
-        Key: fileKey,
-        Body: fileContent,
-        ContentType: req.file.mimetype
-      };
+      let fileUrl;
+      let transformations = {};
       
-      // Upload file gốc lên S3
-      await s3.upload(params).promise();
-      
-      // Tạo CloudFront URL cho file gốc
-      const fileUrl = `${cloudFrontDomain}/${fileKey}`;
-      
-      // Khởi tạo transformations với URL gốc
-      const transformations = {
-        original: fileUrl
-      };
-      
-      // Upload các phiên bản và lưu URLs
-      for (const [version, versionInfo] of Object.entries(versions)) {
-        const versionContent = fs.readFileSync(versionInfo.path);
+      try {
+        // Upload file gốc lên S3 using v3 SDK
+        const fileContent = fs.readFileSync(originalPath);
+        const upload = new Upload({
+          client: s3Client,
+          params: {
+            Bucket: bucketName,
+            Key: fileKey,
+            Body: fileContent,
+            ContentType: req.file.mimetype,
+          },
+        });
         
-        await s3.upload({
-          Bucket: bucketName,
-          Key: versionInfo.key,
-          Body: versionContent,
-          ContentType: versionInfo.mimetype
-        }).promise();
+        await upload.done();
         
-        transformations[version] = `${cloudFrontDomain}/${versionInfo.key}`;
+        // Tạo CloudFront URL cho file gốc
+        fileUrl = `${cloudFrontDomain}/${fileKey}`;
         
-        // Xóa file phiên bản tạm
-        fs.unlinkSync(versionInfo.path);
+        // Khởi tạo transformations với URL gốc
+        transformations = {
+          original: fileUrl
+        };
+        
+        // Upload các phiên bản và lưu URLs
+        for (const [version, versionInfo] of Object.entries(versions)) {
+          const versionContent = fs.readFileSync(versionInfo.path);
+          
+          const versionUpload = new Upload({
+            client: s3Client,
+            params: {
+              Bucket: bucketName,
+              Key: versionInfo.key,
+              Body: versionContent,
+              ContentType: versionInfo.mimetype,
+            },
+          });
+          
+          await versionUpload.done();
+          
+          transformations[version] = `${cloudFrontDomain}/${versionInfo.key}`;
+          
+          // Xóa file phiên bản tạm
+          fs.unlinkSync(versionInfo.path);
+        }
+      } catch (awsError) {
+        console.error('AWS S3 Upload failed, using fallback:', awsError.message);
+        // Fallback: use local file system
+        fileUrl = `http://localhost:${process.env.PORT || 3000}/uploads/${req.file.filename}`;
+        transformations = {
+          original: fileUrl
+        };
+        
+        // Clean up version files
+        for (const [version, versionInfo] of Object.entries(versions)) {
+          if (fs.existsSync(versionInfo.path)) {
+            fs.unlinkSync(versionInfo.path);
+          }
+        }
       }
       
       // Tạo bản ghi file trong database
@@ -78,41 +104,67 @@ export default async function (req, res, next) {
         // Tạo các phiên bản ảnh khác nhau nếu là image
         const { originalPath, versions } = await createImageVersions(filePath, e.mimetype);
         
-        // Upload file gốc lên S3
-        const fileContent = fs.readFileSync(originalPath);
-        const params = {
-          Bucket: bucketName,
-          Key: fileKey,
-          Body: fileContent,
-          ContentType: e.mimetype
-        };
+        let fileUrl;
+        let transformations = {};
         
-        // Upload file gốc lên S3
-        await s3.upload(params).promise();
-        
-        // Tạo CloudFront URL cho file gốc
-        const fileUrl = `${cloudFrontDomain}/${fileKey}`;
-        
-        // Khởi tạo transformations với URL gốc
-        const transformations = {
-          original: fileUrl
-        };
-        
-        // Upload các phiên bản và lưu URLs
-        for (const [version, versionInfo] of Object.entries(versions)) {
-          const versionContent = fs.readFileSync(versionInfo.path);
+        try {
+          // Upload file gốc lên S3 using v3 SDK
+          const fileContent = fs.readFileSync(originalPath);
+          const upload = new Upload({
+            client: s3Client,
+            params: {
+              Bucket: bucketName,
+              Key: fileKey,
+              Body: fileContent,
+              ContentType: e.mimetype,
+            },
+          });
           
-          await s3.upload({
-            Bucket: bucketName,
-            Key: versionInfo.key,
-            Body: versionContent,
-            ContentType: versionInfo.mimetype
-          }).promise();
+          await upload.done();
           
-          transformations[version] = `${cloudFrontDomain}/${versionInfo.key}`;
+          // Tạo CloudFront URL cho file gốc
+          fileUrl = `${cloudFrontDomain}/${fileKey}`;
           
-          // Xóa file phiên bản tạm
-          fs.unlinkSync(versionInfo.path);
+          // Khởi tạo transformations với URL gốc
+          transformations = {
+            original: fileUrl
+          };
+          
+          // Upload các phiên bản và lưu URLs
+          for (const [version, versionInfo] of Object.entries(versions)) {
+            const versionContent = fs.readFileSync(versionInfo.path);
+            
+            const versionUpload = new Upload({
+              client: s3Client,
+              params: {
+                Bucket: bucketName,
+                Key: versionInfo.key,
+                Body: versionContent,
+                ContentType: versionInfo.mimetype,
+              },
+            });
+            
+            await versionUpload.done();
+            
+            transformations[version] = `${cloudFrontDomain}/${versionInfo.key}`;
+            
+            // Xóa file phiên bản tạm
+            fs.unlinkSync(versionInfo.path);
+          }
+        } catch (awsError) {
+          console.error('AWS S3 Upload failed, using fallback:', awsError.message);
+          // Fallback: use local file system
+          fileUrl = `http://localhost:${process.env.PORT || 3000}/uploads/${e.filename}`;
+          transformations = {
+            original: fileUrl
+          };
+          
+          // Clean up version files
+          for (const [version, versionInfo] of Object.entries(versions)) {
+            if (fs.existsSync(versionInfo.path)) {
+              fs.unlinkSync(versionInfo.path);
+            }
+          }
         }
         
         // Tạo bản ghi file trong database
